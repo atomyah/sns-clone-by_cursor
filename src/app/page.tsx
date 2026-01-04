@@ -68,10 +68,10 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
-      <div className="max-w-[1280px] mx-auto flex w-full">
+      <div className="max-w-[1280px] mx-auto flex w-full h-screen overflow-y-auto">
         <Sidebar />
 
-        <main className="flex-1 md:max-w-[600px] min-w-0 h-screen overflow-y-auto">
+        <main className="flex-1 md:max-w-[600px] min-w-0">
           <div className="sticky top-0 bg-background/80 backdrop-blur-sm z-10 px-4 py-3">
             <h1 className="text-xl font-bold">ホーム</h1>
           </div>

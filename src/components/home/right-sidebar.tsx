@@ -16,7 +16,7 @@ interface RightSidebarProps {
 
 export function RightSidebar({ liveEvents, newsItems, className }: RightSidebarProps) {
   return (
-    <aside className={`w-[350px] h-screen sticky top-0 overflow-y-auto px-4 py-4 flex flex-col gap-4 ${className || ''}`}>
+    <aside className={`w-[350px] sticky top-0 px-4 py-4 flex flex-col gap-4 ${className || ''}`}>
       <div className="relative shrink-0">
         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
         <Input

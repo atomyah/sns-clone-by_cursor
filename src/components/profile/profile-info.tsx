@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Check, Pill, Link as LinkIcon, Calendar } from 'lucide-react';
+import { Check, Link as LinkIcon, Calendar } from 'lucide-react';
 
 interface ProfileInfoProps {
   bannerImage?: string;
@@ -27,7 +27,7 @@ export function ProfileInfo({
   verified = false,
   bio,
   website,
-  joinedDate,
+  joinedDate, // [username]/page.tsxの６５行目：joinedDate={new Date(user.createdAt).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long' })}
   following,
   followers,
   isOwnProfile = false,
@@ -79,10 +79,6 @@ export function ProfileInfo({
 
           {/* 詳細情報 */}
           <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <Pill className="w-4 h-4" />
-              <span>薬</span>
-            </div>
             {website && (
               <div className="flex items-center gap-1">
                 <LinkIcon className="w-4 h-4" />
