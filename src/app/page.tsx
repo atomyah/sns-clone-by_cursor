@@ -2,90 +2,11 @@ import { Sidebar } from '@/components/home/sidebar';
 import { RightSidebar } from '@/components/home/right-sidebar';
 import { PostForm } from '@/components/home/post-form';
 import { PostList } from '@/components/home/post-list';
+import { getTimelinePosts } from '@/lib/posts';
+import { formatRelativeTime } from '@/lib/format-date';
 import type { Post, LiveEvent, NewsItem } from '@/types/post';
 
-const mockPosts: Post[] = [
-  {
-    id: 1,
-    user: {
-      name: 'ベンゾジアゼピン情報センター【公式】',
-      username: '@benzoinfojapan',
-      avatar:
-        'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=100',
-    },
-    timestamp: '2020年3月7日',
-    content:
-      'ベンゾジアゼピン問題は日本だけでなく世界中で同様です。減薬の困難性と正しい処方に関する医療界の無知が問題です。服薬中でも"いきなりやめないで"といった内容が...',
-    likes: 24,
-    retweets: 8,
-    replies: 5,
-    pinned: true,
-  },
-  {
-    id: 2,
-    user: {
-      name: 'ベンゾジアゼピン情報センター【公式】',
-      username: '@benzoinfojapan',
-      avatar:
-        'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=100',
-    },
-    timestamp: '2020年3月6日',
-    content:
-      'ベンゾジアゼピン薬の被害実態、医学論文、減薬方法などの情報をウェブサイトと書籍で提供しています。',
-    likes: 42,
-    retweets: 15,
-    replies: 8,
-  },
-  {
-    id: 3,
-    user: {
-      name: 'ベンゾジアゼピン情報センター【公式】',
-      username: '@benzoinfojapan',
-      avatar:
-        'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=100',
-    },
-    timestamp: '2020年3月5日',
-    content:
-      '減薬を始める前に、必ず医師と相談してください。自己判断での減薬は危険です。',
-    likes: 156,
-    retweets: 89,
-    replies: 32,
-  },
-  {
-    id: 4,
-    user: {
-      name: 'ベンゾジアゼピン情報センター【公式】',
-      username: '@benzoinfojapan',
-      avatar:
-        'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=100',
-    },
-    timestamp: '2020年3月4日',
-    content:
-      'ベンゾフォーラムで多くの質問にお答えしています。減薬に関する不安や疑問があれば、ぜひご相談ください。',
-    images: [
-      'https://images.pexels.com/photos/3945683/pexels-photo-3945683.jpeg?auto=compress&cs=tinysrgb&w=300',
-    ],
-    likes: 203,
-    retweets: 112,
-    replies: 45,
-  },
-  {
-    id: 5,
-    user: {
-      name: 'ベンゾジアゼピン情報センター【公式】',
-      username: '@benzoinfojapan',
-      avatar:
-        'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=100',
-    },
-    timestamp: '2020年3月3日',
-    content:
-      '最新の医学論文をまとめた資料を公開しました。医療従事者の方にも参考にしていただけます。',
-    likes: 278,
-    retweets: 156,
-    replies: 67,
-  },
-];
-
+// 以下のダミーデータは<RightSidebar />コンポーネントのダミーデータ.
 const liveEvents: LiveEvent[] = [
   {
     id: 1,
@@ -111,6 +32,7 @@ const liveEvents: LiveEvent[] = [
   },
 ];
 
+// 以下のダミーデータは<RightSidebar />コンポーネントのダミーデータ.
 const newsItems: NewsItem[] = [
   {
     id: 1,
@@ -125,7 +47,25 @@ const newsItems: NewsItem[] = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  // Supabaseから投稿データを取得
+  const dbPosts = await getTimelinePosts();
+
+  // Prismaの型からPostコンポーネント用の型に変換
+  const posts: Post[] = dbPosts.map((post) => ({
+    id: parseInt(post.id.substring(0, 8), 16), // UUIDの一部を数値IDに変換（表示用）
+    user: {
+      name: post.user.displayName,
+      username: `@${post.user.username}`,
+      avatar: post.user.profileImageUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + post.user.username,
+    },
+    timestamp: formatRelativeTime(post.createdAt),
+    content: post.content,
+    likes: post._count?.likes || 0,
+    retweets: 0, // リツイート機能は未実装
+    replies: post._count?.replies || 0,
+  }));
+
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       <div className="max-w-[1280px] mx-auto flex w-full">
@@ -137,7 +77,14 @@ export default function Home() {
           </div>
           
           <PostForm />
-          <PostList posts={mockPosts} />
+          {posts.length > 0 ? (
+            <PostList posts={posts} />
+          ) : (
+            <div className="p-8 text-center text-muted-foreground">
+              <p>まだ投稿がありません</p>
+              <p className="text-sm mt-2">最初の投稿をしてみましょう！</p>
+            </div>
+          )}
         </main>
 
         <RightSidebar className="hidden lg:flex" liveEvents={liveEvents} newsItems={newsItems} />
